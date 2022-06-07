@@ -1,0 +1,114 @@
+#! /usr/bin/env python3
+from argparse import ArgumentParser
+from PIL import Image
+import sys
+import zlib
+import os
+
+
+def get_factors(n):
+    factors = []
+    familiar = []
+    for i in range(1, n // 2):
+        if not n % i:
+            other = n // i
+            if all(num not in familiar for num in (i, other)):
+                factors.append((i, other))
+                familiar.append(i)
+                familiar.append(other)
+    return factors
+
+
+def get_most_neutral_pair(pairs):
+    least = float('inf')
+    least_pair = pairs[0]
+    for pair in pairs:
+        diff = pair[1] - pair[0]
+        if diff < least:
+            least = diff
+            least_pair = pair
+    return least_pair
+
+
+def yesno(question):
+    answered = False
+    answer = False
+    while not answered:
+        ans = input(f'{question} (y/N): ').lower()
+        if ans in ['y', 'yes', 'n', 'no']:
+            answered = True
+        if ans in ['y', 'yes']:
+            answer = True
+    return answer
+
+
+def main():
+    parser = ArgumentParser(
+        description='DocImg, convert any file into a PNG image to share anywhere.')
+    parser.add_argument('input', type=str,
+                        help='The input document to convert to PNG.')
+    parser.add_argument('output', type=str,
+                        help='The output filepath to save to.')
+    args = parser.parse_args()
+    inputf = args.input
+    outf = args.output
+    split_outf = os.path.split(outf)
+    if not os.path.isfile(inputf):
+        parser.error(f'Couldn\'t find file: {inputf}')
+    if not os.path.isdir(split_outf[0]):
+        parser.error(f'Directory doesn\'t exist: {split_outf[0]}')
+    print('Reading input file...')
+    with open(inputf, 'rb') as file_:
+        size = os.path.getsize(inputf)
+        if size > 5 * 10 ** 6:
+            data = bytearray()
+            prg = 0
+
+            for line in file_:
+                for byte in [line[it:it + 1] for it in range(len(line))]:
+                    prg += 1
+                    done = int(50 * prg / size)
+                    data.extend(byte)
+                    sys.stdout.write('\rReading: |%s%s| - ' % ('\N{Full Block}' * done, ' ' * (50 - done)) + str(
+                        round(prg / size * 100)) + '% - ' + '%s / %s bytes' % (f'{prg:,}', f'{size:,}'))
+                    sys.stdout.flush()
+        else:
+            data = file_.read()
+    print('Done reading.')
+    print('Compressing data...')
+    c_data = zlib.compress(data)
+    print('Compressed data.')
+    lowest = float('inf')
+    highest = float('-inf')
+    for byte in c_data:
+        if byte < lowest:
+            lowest = byte
+        if byte > highest:
+            highest = byte
+    if (lowest, highest) != (0, 255):
+        parser.error(
+            f'Cannot handle bytes of range {lowest}-{highest} (need 0-255)')
+    print('Forming colors...')
+    color_pairs = []
+    for byte in c_data:
+        color_pairs.append((byte, 0, 0))
+    print('Done forming colors.')
+    res = get_most_neutral_pair(get_factors(len(c_data)))
+    print('Creating image...')
+    image = Image.new('RGB', res)
+    print('Done creating image.')
+    print('Putting data on image...')
+    image.putdata(color_pairs)
+    print('Done putting data on image.')
+    print('Saving image...')
+    if os.path.isfile(outf):
+        if yesno(f'{outf} already exists. Replace?'):
+            print('Replacing output target.')
+        else:
+            sys.exit('Aborting.')
+    image.save(outf)
+    print('Done saving image.')
+
+
+if __name__ == '__main__':
+    main()
