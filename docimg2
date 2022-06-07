@@ -57,7 +57,7 @@ def main():
     split_outf = os.path.split(outf)
     if not os.path.isfile(inputf):
         parser.error(f'Couldn\'t find file: {inputf}')
-    if not os.path.isdir(split_outf[0]):
+    if split_outf[0].strip() and not os.path.isdir(split_outf[0]):
         parser.error(f'Directory doesn\'t exist: {split_outf[0]}')
     print('Reading input file...')
     with open(inputf, 'rb') as file_:
