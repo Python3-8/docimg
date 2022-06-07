@@ -85,7 +85,7 @@ def main():
             lowest = byte
         if byte > highest:
             highest = byte
-    if (lowest, highest) != (0, 255):
+    if any(num not in range(0, 256) for num in (lowest, highest)):
         parser.error(
             f'Cannot handle bytes of range {lowest}-{highest} (need 0-255)')
     print('Forming colors...')
