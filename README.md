@@ -17,8 +17,8 @@ $ git clone https://github.com/Python3-8/docimg.git DocImg
 $ cd DocImg
 ```
 
-### Running on Linux
-On Linux, DocImg's programs can be run with ease, as shown below.
+### Running on Linux and Mac
+On Linux and Mac, DocImg's programs can be run with ease, as shown below.
 ```sh
 $ ./docimg -h
 usage: docimg [-h] input output
