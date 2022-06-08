@@ -45,8 +45,9 @@ def yesno(question):
 def main():
     parser = ArgumentParser(
         description='DocImg2, convert any file into a PNG image to share'
-        'anywhere. The difference between DocImg and DocImg2 is that DocImg2'
-        'produces smaller PNG images that use the alpha channel as well.')
+        ' anywhere. DocImg2 produces smaller PNG images than DocImg that use'
+        ' the alpha channel and store up to 3 bytes per pixel rather than just'
+        ' one.')
     parser.add_argument('input', type=str,
                         help='The input document to convert to PNG.')
     parser.add_argument('output', type=str,

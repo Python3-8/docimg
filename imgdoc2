@@ -20,7 +20,7 @@ def yesno(question):
 
 def main():
     parser = ArgumentParser(
-        description='ImgDoc, convert a DocImg PNG back into its original format.')
+        description='ImgDoc2, convert a DocImg2 PNG back into its original format.')
     parser.add_argument('input', type=str,
                         help='The input document to convert back.')
     parser.add_argument('output', type=str,
